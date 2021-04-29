@@ -1,23 +1,23 @@
 import React, { useState } from "react";
-import { StyleSheet, TextInput, View, TouchableOpacity, Text, Button, Platform} from "react-native";
+import { StyleSheet, TextInput, View, TouchableOpacity, Text, Button} from "react-native";
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import Header from '../components/Header/Header';
-import DatePicker from '../components/Calendar/DateTimePicker';
+
+import Quotation from '../services/sqlite/Quotation';
+import api from '../services/api';
+import Calendar from '../components/Calendar/DateTimePicker';
 
 export default function NewQuote() {
 
   const [moedaBase, setMoedaBase] = useState('');
   const [moedaDestino, setMoedaDestino] = useState('');
-  const [valor, setValor] = useState('');
- var options = { year: 'numeric', month: 'long', day: 'numeric' };
+  const [amout, setValor] = useState(0);
+  var [message, setMessage] = useState(''); 
 
-
-
-const [date, setDate] = useState(new Date());
-const [mode, setMode] = useState('date');
-const [show, setShow] = useState(false);
-
+  const [date, setDate] = useState(new Date());
+  const [mode, setMode] = useState('date');
+  const [show, setShow] = useState(false);
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -34,32 +34,66 @@ const [show, setShow] = useState(false);
     showMode('date');
   };
 
+
+function createQuotation(total) {
+  Quotation.create({coin_base:moedaBase, coin_fate:moedaDestino, date_conversion:date.toISOString().slice(0, 10), amout:amout, conversion:total} )
+  .then(id => console.log('Cotação criada com id: ' + id) ).catch(err=>console.log(err))
+}
+
+ function createMessage(total) {
+    setMessage(amout + ' ' + moedaBase + ' = ' + total + ' ' + moedaDestino +
+    '\n(Cotação de ' + date.toString() + ')'
+     )
+  }
+
+
   return (
     <View style={styles.container}>
 
     <Header/>
     
-    <Text>Cotação</Text>
+    <Text style={styles.textTitle}>Cotação de Moeda</Text>
     
        <View style={styles.contentRow} >
           <TextInput
             style={styles.inputField}
             secureTextEntry={false}
-            placeholder='Moeda Base'
+            placeholder='Moeda Base (USD)'
             placeholderTextColor='grey'
-            onChangeText={(text) => setMoedaBase(text)}/>
+            onChangeText={(text) => setMoedaBase(text.toUpperCase())}/>
       </View>
 
        <View style={styles.contentRow} >
           <TextInput
             style={styles.inputField}
             secureTextEntry={false}
-            placeholder='Moeda Destino'
+            placeholder='Moeda Destino (BRL)'
             placeholderTextColor='grey'
-            onChangeText={(text) => setMoedaDestino(text)}/>
+            onChangeText={(text) => setMoedaDestino(text.toUpperCase())}/>
       </View>
 
-       <DatePicker/>
+      <View style={styles.contentRow}>
+          <TextInput  
+                style={styles.inputPicker}
+                placeholder={date.toISOString().slice(0, 10)}
+                editable={false}
+            />
+        <TouchableOpacity onPress={showDatepicker}>
+            <View style={styles.buttonPicker}>
+             <Text style={styles.text}>Calendario</Text>
+           </View>
+         </TouchableOpacity>
+          {show && (
+            <DateTimePicker
+              testID="dateTimePicker"
+              value={date}
+              mode={mode}
+              is24Hour={true}
+              display="default"
+              onChange={onChange}
+            />
+          )}
+      </View>
 
        <View style={styles.contentRow} >
           <TextInput
@@ -70,14 +104,38 @@ const [show, setShow] = useState(false);
             onChangeText={(text) => setValor(text)}/>
       </View>
 
+      <Text style={styles.contentRow}>{message}</Text>
 
+      <TouchableOpacity 
+      onPress={() => {
+        api.get("latest?base=" + moedaBase).then( (response) => {
+          let outputValue = (response.data.rates[moedaDestino])
+          let aa = (response.data.date = date.toISOString().slice(0,10))
+          let total = amout * outputValue
 
+            if(total){
+              createQuotation(total)
+              createMessage(total)
+            } else {
+              setMessage('');
+              alert('campos nao preenchidos')
+            }
+          })
+        .catch(
+          (err) => {
+          alert("Os campos não foram preenchidos corretamente ou ainda não há resultados presentes na API que atendam sua pesquisa!")
+          createMessage(false)
+          setMessage('');
+          console.log(err)
+        }
+       );
+      }}>
 
-      <TouchableOpacity>
         <View style={styles.button}>
           <Text style={styles.text}>Cotar</Text>
         </View>
       </TouchableOpacity>
+
     </View>
   );
 }
@@ -86,9 +144,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+    backgroundColor: '#F4F7D1'
   },
   contentRow:{
-    // marginBottom:20,
     flexDirection: 'row',
     alignItems: 'stretch',
     justifyContent: 'center',
@@ -111,7 +169,6 @@ const styles = StyleSheet.create({
     padding:12,
     width:150,
     alignItems: 'center',
-    marginTop:10,
     borderRadius:10,
   },
   text:{
@@ -119,7 +176,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize:15
   },
-    inputPicker:{
+  inputPicker:{
     width:"70%",
     backgroundColor:"#fff",
     borderRadius:10,
@@ -136,5 +193,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop:2,
     borderRadius:8,
+  },
+  textTitle:{
+    textTransform:'uppercase', 
+    fontWeight:'bold', 
+    fontSize:25,
+    margin:25,
+    color: '#429B2D'
   }
 });

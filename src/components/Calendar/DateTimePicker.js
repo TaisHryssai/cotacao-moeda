@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { StyleSheet, TextInput, View, TouchableOpacity, Text, Platform} from "react-native";
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-export default function DatePicker() {
+export default function DatePicker(props) {
 
 const [date, setDate] = useState(new Date());
 const [mode, setMode] = useState('date');
@@ -28,13 +28,13 @@ const [show, setShow] = useState(false);
     <View>
 
        <View style={styles.contentRow}>
-          <TextInput
-            style={styles.inputPicker}
-            secureTextEntry={false}
-            placeholder={date.toLocaleDateString('en-US')}
-            placeholderTextColor='grey'
-            editable={false}
-            onChangeText={(date) => setDate(date)}/>
+            <TextInput  
+                style={styles.inputPicker}
+                placeholder={date.toISOString().slice(0, 10)}
+                editable={false}
+            />
+
+            
            {!show && (  
           <TouchableOpacity onPress={showDatepicker}>
             <View style={styles.buttonPicker}>
