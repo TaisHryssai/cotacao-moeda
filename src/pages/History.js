@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "space-evenly",
     alignItems: "center",
-    backgroundColor: '#F4F7D1'
+    backgroundColor: '#F9FFD9'
   },
   button:{
     borderWidth:1,

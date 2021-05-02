@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Image, View, Text} from 'react-native';
+import { StyleSheet, Image, View} from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 
 export default function Header() {
@@ -10,14 +10,14 @@ export default function Header() {
       <StatusBar style="auto" />
         <Image
         style={styles.imgLogo}
-        source={require("../../../assets/teste.png")} />
+        source={require("../../../assets/iconHeader.png")} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#72BF2F',
+    backgroundColor: '#B6F97C',
     paddingLeft: 5,
     padding:3,
     width: 359,

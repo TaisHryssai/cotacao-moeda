@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { StyleSheet, Button, Text, View, Image, TouchableOpacity } from "react-native";
+import React from "react";
+import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 
 import ModalComponent from '../components/Home/Modal';
 
@@ -9,7 +9,7 @@ export default function Home(props) {
     <View style={styles.container}>
         <Image
             style={styles.logoImg}
-            source = {require('../../assets/teste5.png')}
+            source = {require('../../assets/iconHome.png')}
           />
 
       <TouchableOpacity onPress={() => {  props.navigation.navigate("NewQuote"); }}>
